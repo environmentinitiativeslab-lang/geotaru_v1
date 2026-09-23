@@ -1,0 +1,586 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GeoTARU | Development Suitability</title>
+
+    <!-- Leaflet -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <!-- GeoTARU stylesheet -->
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+<!-- ===================================================== -->
+<!-- HEADER -->
+<!-- ===================================================== -->
+
+<header class="topbar">
+
+    <div class="brand">
+
+        <div class="brand-title">
+            GeoTARU
+        </div>
+
+        <div class="brand-subtitle">
+            Development Suitability Assessment
+        </div>
+
+    </div>
+
+    <div class="header-tag">
+        Spatial Decision Support
+    </div>
+
+</header>
+
+
+<!-- ===================================================== -->
+<!-- MAIN CONTENT -->
+<!-- ===================================================== -->
+
+<main class="container">
+
+
+    <!-- INTRODUCTION -->
+
+    <section class="intro">
+
+        <h1>
+            Development Suitability Assessment
+        </h1>
+
+        <p>
+            GeoTARU integrates Random Forest-based spatial
+            suitability modelling, terrain constraints, and
+            InaRISK flood-hazard adjustment to characterize
+            development suitability within the study area.
+        </p>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- KEY INDICATORS -->
+    <!-- ================================================= -->
+
+    <section class="metrics-grid">
+
+        <div class="metric-card">
+
+            <div class="metric-label">
+                RF Accuracy
+            </div>
+
+            <div
+                class="metric-value"
+                id="accuracy"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <div class="metric-label">
+                Kappa
+            </div>
+
+            <div
+                class="metric-value"
+                id="kappa"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <div class="metric-label">
+                Mean Suitability
+            </div>
+
+            <div
+                class="metric-value"
+                id="meanSuitability"
+            >
+                —
+            </div>
+
+        </div>
+
+
+        <div class="metric-card">
+
+            <div class="metric-label">
+                Modeled Area
+            </div>
+
+            <div
+                class="metric-value"
+                id="modeledArea"
+            >
+                —
+            </div>
+
+            <div class="metric-unit">
+                hectares
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- MAP -->
+    <!-- ================================================= -->
+
+    <section class="panel map-panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Development Suitability Map
+                </h2>
+
+                <p>
+                    Final suitability classification
+                </p>
+
+            </div>
+
+
+            <div class="map-control">
+
+                <label for="mapOpacity">
+                    Opacity
+                </label>
+
+                <input
+                    type="range"
+                    id="mapOpacity"
+                    min="0.2"
+                    max="1"
+                    step="0.1"
+                    value="0.8"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div id="map"></div>
+
+
+        <div class="map-note">
+
+            Red indicates lower suitability and green
+            indicates higher suitability.
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- SUITABILITY DISTRIBUTION -->
+    <!-- ================================================= -->
+
+    <section class="two-column">
+
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Suitability Distribution
+                    </h2>
+
+                    <p>
+                        Modeled area by suitability class
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="classChart"
+                class="class-chart"
+            >
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- CLASS LEGEND -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Suitability Classes
+                    </h2>
+
+                    <p>
+                        Fixed score intervals
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="legend-list">
+
+                <div class="legend-item">
+
+                    <span class="legend-color very-low"></span>
+
+                    <div>
+
+                        <strong>
+                            Very Low
+                        </strong>
+
+                        <small>
+                            Score &lt; 0.25
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span class="legend-color low"></span>
+
+                    <div>
+
+                        <strong>
+                            Low
+                        </strong>
+
+                        <small>
+                            0.25 – &lt; 0.50
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span class="legend-color moderate"></span>
+
+                    <div>
+
+                        <strong>
+                            Moderate
+                        </strong>
+
+                        <small>
+                            0.50 – &lt; 0.75
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span class="legend-color high"></span>
+
+                    <div>
+
+                        <strong>
+                            High
+                        </strong>
+
+                        <small>
+                            0.75 – &lt; 1.00
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span class="legend-color very-high"></span>
+
+                    <div>
+
+                        <strong>
+                            Very High
+                        </strong>
+
+                        <small>
+                            Score = 1.00
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- MODEL INFORMATION -->
+    <!-- ================================================= -->
+
+    <section class="two-column">
+
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Random Forest Model
+                    </h2>
+
+                    <p>
+                        Model configuration and validation
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="info-table">
+
+                <div class="info-row">
+
+                    <span>
+                        Algorithm
+                    </span>
+
+                    <strong id="algorithm">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Number of trees
+                    </span>
+
+                    <strong id="trees">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Training samples
+                    </span>
+
+                    <strong id="samples">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Overall accuracy
+                    </span>
+
+                    <strong id="accuracyDetail">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span>
+                        Kappa
+                    </span>
+
+                    <strong id="kappaDetail">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- FEATURE IMPORTANCE -->
+        <!-- ================================================= -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        Predictor Importance
+                    </h2>
+
+                    <p>
+                        Normalized Random Forest importance
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="featureImportance"
+                class="importance-list"
+            >
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- DOWNLOADS -->
+    <!-- ================================================= -->
+
+    <section class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Data & Downloads
+                </h2>
+
+                <p>
+                    Web-ready GeoTARU outputs
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="download-grid">
+
+            <a
+                href="data/statistics.json"
+                download
+                class="download-button"
+            >
+                Statistics JSON
+            </a>
+
+
+            <a
+                href="data/suitability_class.geojson"
+                download
+                class="download-button"
+            >
+                Suitability GeoJSON
+            </a>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- ===================================================== -->
+<!-- FOOTER -->
+<!-- ===================================================== -->
+
+<footer>
+
+    <div>
+        GeoTARU — Geospatial Development Suitability Assessment
+    </div>
+
+    <div>
+        Research visualization interface
+    </div>
+
+</footer>
+
+
+<!-- Leaflet -->
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<!-- GeoTARU application -->
+
+<script src="app.js"></script>
+
+
+</body>
+
+</html>
